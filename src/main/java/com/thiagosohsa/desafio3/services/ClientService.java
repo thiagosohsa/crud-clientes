@@ -35,24 +35,25 @@ public class ClientService {
 
     @Transactional
     public ClientDTO insert(ClientDTO dto) {
-        Client entity = new Client();
-        copyDtoToEntity(dto, entity);
-        entity = repository.save(entity);
-        return new ClientDTO(entity);
-    }
-
-    @Transactional
-    public ClientDTO update(Long id, ClientDTO dto) {
         try {
-            Client entity = repository.getReferenceById(id);
+            Client entity = new Client();
             copyDtoToEntity(dto, entity);
             entity = repository.save(entity);
             return new ClientDTO(entity);
         }
         catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Cliente inexistente.");
+            throw new ResourceNotFoundException("Cliente inexistente");
         }
 
+    }
+
+    @Transactional
+    public ClientDTO update(Long id, ClientDTO dto) {
+            Client entity = repository.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("Cliente inexistente"));
+            copyDtoToEntity(dto, entity);
+            entity = repository.save(entity);
+            return new ClientDTO(entity);
     }
 
     @Transactional(propagation = Propagation.SUPPORTS)
@@ -64,7 +65,7 @@ public class ClientService {
             repository.deleteById(id);
         }
         catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Falha de integridade referencial");
+            throw new DatabaseException("Falha de integridade");
         }
     }
 
